@@ -1,5 +1,7 @@
 # Office Snacks Bot: Purchasing Assistant for Slack
 
+![Office Snacks Bot Hero](hero.png)
+
 A powerful AI assistant that helps your team order office snacks and supplies directly from Slack, with crypto payments and automated delivery.
 
 ## 🚀 Key Features
@@ -8,18 +10,21 @@ A powerful AI assistant that helps your team order office snacks and supplies di
 - **Crypto Payments**: Pay with USDC on Solana for all purchases
 - **Multi-Office Support**: Automatically delivers to the correct office location
 - **Email Receipts**: Sends confirmation emails with purchase details
-- **Conversational Interface**: Natural language ordering experience 
+- **Conversational Interface**: Natural language ordering experience
 - **Slack Integration**: Works in channels, threads, and direct messages
 
 ## 💡 Use Cases
 
 ### Office Managers
+
 "I need to order snacks for the Miami office."
 
 ### Team Leads
+
 "Can you order these headphones for our new developer? Here's the Amazon link."
 
 ### Remote Employees
+
 "We need more La Croix for next week's team meeting."
 
 ## 🛠️ How It Works

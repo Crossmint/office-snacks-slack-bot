@@ -64,6 +64,9 @@ SOLANA_RPC_URL=your-solana-rpc-url
 
 # Crossmint API Key
 CROSSMINT_API_KEY=your-crossmint-api-key
+
+# Office Addresses (JSON string array of objects)
+OFFICE_ADDRESSES='[{"name":"Main Office","line1":"123 Market St","line2":"Suite 100","city":"San Francisco","state":"CA","postalCode":"94105","country":"US"}]'
 ```
 
 Replace the placeholder values with your actual tokens.
@@ -153,9 +156,11 @@ The bot maintains context within both threads and direct messages, so it can fol
 ### Available Tools
 
 1. **Office Locations**: The bot can retrieve office addresses for delivery.
+
    - Example: "I need to order snacks for the office"
 
 2. **Amazon Purchasing**: The bot can process purchases from Amazon URLs.
+
    - Example: "Buy this https://www.amazon.com/Croix-Sparkling-Water-Grapefruit-Count/dp/B01MTDGVVY/"
 
 3. **Financial Information**: The bot can share its wallet address and USDC balance.
@@ -170,4 +175,4 @@ The chatbot is built with an extensible architecture using the [AI SDK's tool sy
 - Custom API integrations
 - Company documentation search
 
-Create a new plugin in the `lib/goat` directory following the existing pattern. 
+Create a new plugin in the `lib/goat` directory following the existing pattern.
