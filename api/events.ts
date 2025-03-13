@@ -1,3 +1,5 @@
+export const maxDuration = 60; // Set maximum duration to 60 seconds
+
 import type { SlackEvent } from "@slack/web-api";
 import {
   assistantThreadMessage,
@@ -23,6 +25,8 @@ export async function POST(request: Request) {
     const botUserId = await getBotId();
 
     const event = payload.event as SlackEvent;
+
+    console.log("event.type", event.type);
 
     if (event.type === "app_mention") {
       waitUntil(handleNewAppMention(event, botUserId));

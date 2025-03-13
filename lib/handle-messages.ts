@@ -6,7 +6,7 @@ import { client, getThread, updateStatusUtil } from "./slack-utils";
 import { generateResponse } from "./generate-response";
 
 export async function assistantThreadMessage(
-  event: AssistantThreadStartedEvent,
+  event: AssistantThreadStartedEvent
 ) {
   const { channel_id, thread_ts } = event.assistant_thread;
   console.log(`Thread started: ${channel_id} ${thread_ts}`);
@@ -15,7 +15,7 @@ export async function assistantThreadMessage(
   await client.chat.postMessage({
     channel: channel_id,
     thread_ts: thread_ts,
-    text: "Hello, I'm an AI assistant built with the AI SDK by Vercel!",
+    text: "Hello, I'm an AI purchasing assistant built with Crossmint's GOAT SDK and Headless Checkout!",
   });
 
   await client.assistant.threads.setSuggestedPrompts({
@@ -23,12 +23,9 @@ export async function assistantThreadMessage(
     thread_ts: thread_ts,
     prompts: [
       {
-        title: "Get the weather",
-        message: "What is the current weather in London?",
-      },
-      {
-        title: "Get the news",
-        message: "What is the latest Premier League news from the BBC?",
+        title: "Buy this product",
+        message:
+          "Buy this https://www.amazon.com/Croix-Sparkling-Water-Grapefruit-Count/dp/B01MTDGVVY/ref=sr_1_1?s=grocery&sr=1-1",
       },
     ],
   });
@@ -36,7 +33,7 @@ export async function assistantThreadMessage(
 
 export async function handleNewAssistantMessage(
   event: GenericMessageEvent,
-  botUserId: string,
+  botUserId: string
 ) {
   if (
     event.bot_id ||

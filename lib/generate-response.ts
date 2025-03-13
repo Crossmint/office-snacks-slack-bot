@@ -1,75 +1,74 @@
 import { openai } from "@ai-sdk/openai";
-import { CoreMessage, generateText, tool } from "ai";
-import { z } from "zod";
-import { exa } from "./utils";
+import { getOnChainTools } from "@goat-sdk/adapter-vercel-ai";
+import { solana } from "@goat-sdk/wallet-solana";
+import { CoreMessage, generateText } from "ai";
+import { Connection, Keypair } from "@solana/web3.js";
+import bs58 from "bs58";
+import { crossmintHeadlessCheckout } from "@goat-sdk/plugin-crossmint-headless-checkout";
+import { officeSnacksBot } from "./goat/office-bot/office-bot.plugin";
+import { splToken } from "@goat-sdk/plugin-spl-token";
 
 export const generateResponse = async (
   messages: CoreMessage[],
-  updateStatus?: (status: string) => void,
+  updateStatus?: (status: string) => void
 ) => {
-  const { text } = await generateText({
-    model: openai("gpt-4o"),
-    system: `You are a Slack bot assistant Keep your responses concise and to the point.
-    - Do not tag users.
-    - Current date is: ${new Date().toISOString().split("T")[0]}
-    - Make sure to ALWAYS include sources in your final response if you use web search. Put sources inline if possible.`,
-    messages,
-    maxSteps: 10,
-    tools: {
-      getWeather: tool({
-        description: "Get the current weather at a location",
-        parameters: z.object({
-          latitude: z.number(),
-          longitude: z.number(),
-          city: z.string(),
-        }),
-        execute: async ({ latitude, longitude, city }) => {
-          updateStatus?.(`is getting weather for ${city}...`);
-
-          const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode,relativehumidity_2m&timezone=auto`,
-          );
-
-          const weatherData = await response.json();
-          return {
-            temperature: weatherData.current.temperature_2m,
-            weatherCode: weatherData.current.weathercode,
-            humidity: weatherData.current.relativehumidity_2m,
-            city,
-          };
-        },
+  const payerKeypair = Keypair.fromSecretKey(
+    bs58.decode(process.env.SOLANA_SECRET_KEY as string)
+  );
+  const tools = await getOnChainTools({
+    wallet: solana({
+      connection: new Connection(process.env.SOLANA_RPC_URL as string),
+      keypair: payerKeypair,
+    }),
+    plugins: [
+      crossmintHeadlessCheckout({
+        apiKey: process.env.CROSSMINT_API_KEY as string,
       }),
-      searchWeb: tool({
-        description: "Use this to search the web for information",
-        parameters: z.object({
-          query: z.string(),
-          specificDomain: z
-            .string()
-            .nullable()
-            .describe(
-              "a domain to search if the user specifies e.g. bbc.com. Should be only the domain name without the protocol",
-            ),
-        }),
-        execute: async ({ query, specificDomain }) => {
-          updateStatus?.(`is searching the web for ${query}...`);
-          const { results } = await exa.searchAndContents(query, {
-            livecrawl: "always",
-            numResults: 3,
-            includeDomains: specificDomain ? [specificDomain] : undefined,
-          });
-
-          return {
-            results: results.map((result) => ({
-              title: result.title,
-              url: result.url,
-              snippet: result.text.slice(0, 1000),
-            })),
-          };
-        },
+      officeSnacksBot(),
+      splToken({
+        network: "devnet",
       }),
-    },
+    ],
   });
+  // list all the available tool names
+  console.log("🛠️ Available tools:", Object.keys(tools));
+
+  let generateTextResponse = await generateText({
+    model: openai("gpt-4"),
+    messages,
+    tools,
+    maxSteps: 10,
+    system: getSystemPrompt(payerKeypair.publicKey.toBase58()),
+  });
+
+  console.log(
+    "🛠️ Generate text response:",
+    JSON.stringify(generateTextResponse, null, 2)
+  );
+
+  let text = generateTextResponse.text || "Failed to generate response";
 
   // Convert markdown to Slack mrkdwn format
   return text.replace(/\[(.*?)\]\((.*?)\)/g, "<$2|$1>").replace(/\*\*/g, "*");
+};
+
+const getSystemPrompt = (payerAddress: string) => {
+  return `
+You are an internal company Office Snacks Bot assistant. Your job is to help employees order snacks for their office location.
+
+When an employee requests snacks:
+1. Use the get_office_addresses tool to show available office locations
+2. Ask which office location they want the snacks delivered to - show a list of the office locations
+3. Once they specify the office, proceed with the purchase using that office's address
+
+For the purchase process:
+1. Use productLocator format 'amazon:B08SVZ775L'
+2. If a URL is provided, extract the product locator from the provided Amazon URL
+3. Use the office address as the shipping address
+4. Use 'usdc' on 'solana' for payment
+5. The recipient.email MUST be 'maxwell@paella.dev', do not set recipient.walletAddress
+6. The payment.payerAddress MUST be '${payerAddress}'
+
+Keep responses friendly and concise. After confirming the order, ask if they need anything else.
+`;
 };

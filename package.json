@@ -11,15 +11,22 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ai-sdk/openai": "^1.1.14",
+    "@ai-sdk/openai": "~1.0.4",
+    "@goat-sdk/adapter-vercel-ai": "0.2.10",
+    "@goat-sdk/core": "0.4.9",
+    "@goat-sdk/plugin-crossmint-headless-checkout": "0.0.12",
+    "@goat-sdk/plugin-spl-token": "0.2.17",
+    "@goat-sdk/wallet-solana": "0.2.15",
     "@slack/web-api": "^7.0.2",
+    "@solana/web3.js": "1.98.0",
     "@vercel/functions": "^2.0.0",
-    "ai": "^4.1.46",
-    "exa-js": "^1.4.10",
-    "zod": "^3.24.2"
+    "ai": "~4.0.3",
+    "bs58": "^6.0.0",
+    "zod": "3.23.8"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
     "typescript": "^5.3.3"
-  }
+  },
+  "packageManager": "pnpm@9.15.1+sha256.9e534e70afef06374f6126b44bda5760947135ce16a30aef1010e965fb7e3e3e"
 }
