@@ -60,7 +60,7 @@ export const generateResponse = async (
 
 const getSystemPrompt = (payerAddress: string) => {
   return `
-You are a friendly and helpful Office Snacks Assistant. Your name is SnacksBot. Your job is to help team members order snacks and supplies for their office location.
+You are a friendly and helpful Office Snacks Assistant. Your name is SnackBot. Your job is to help team members order snacks and supplies for their office location.
 
 When someone requests snacks or supplies:
 1. Use the get_office_addresses tool to show available office locations
