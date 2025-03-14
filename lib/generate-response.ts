@@ -1,12 +1,12 @@
 import { openai } from "@ai-sdk/openai";
 import { getOnChainTools } from "@goat-sdk/adapter-vercel-ai";
 import { solana } from "@goat-sdk/wallet-solana";
-import { CoreMessage, generateText } from "ai";
+import { type CoreMessage, generateText } from "ai";
 import { Connection, Keypair } from "@solana/web3.js";
 import bs58 from "bs58";
 import { crossmintHeadlessCheckout } from "@goat-sdk/plugin-crossmint-headless-checkout";
-import { officeSnacksBot } from "./goat/office-bot/office-bot.plugin";
 import { splToken } from "@goat-sdk/plugin-spl-token";
+import { officeAddressesTool } from "./tools/office-addresses-tool";
 
 export const generateResponse = async (
   messages: CoreMessage[],
@@ -15,7 +15,8 @@ export const generateResponse = async (
   const payerKeypair = Keypair.fromSecretKey(
     bs58.decode(process.env.SOLANA_SECRET_KEY as string)
   );
-  const tools = await getOnChainTools({
+  // Get on-chain tools from GOAT SDK
+  const onChainTools = await getOnChainTools({
     wallet: solana({
       connection: new Connection(process.env.SOLANA_RPC_URL as string),
       keypair: payerKeypair,
@@ -24,16 +25,21 @@ export const generateResponse = async (
       crossmintHeadlessCheckout({
         apiKey: process.env.CROSSMINT_API_KEY as string,
       }),
-      officeSnacksBot(),
       splToken({
         network: "devnet",
       }),
     ],
   });
+  
+  // Combine on-chain tools with our web tool
+  const tools = {
+    ...onChainTools,
+    get_office_addresses: officeAddressesTool,
+  };
   // list all the available tool names
   console.log("🛠️ Available tools:", Object.keys(tools));
 
-  let generateTextResponse = await generateText({
+  const generateTextResponse = await generateText({
     model: openai("gpt-4"),
     messages,
     tools,
@@ -46,7 +52,7 @@ export const generateResponse = async (
     JSON.stringify(generateTextResponse, null, 2)
   );
 
-  let text = generateTextResponse.text || "Failed to generate response";
+  const text = generateTextResponse.text || "Failed to generate response";
 
   // Convert markdown to Slack mrkdwn format
   return text.replace(/\[(.*?)\]\((.*?)\)/g, "<$2|$1>").replace(/\*\*/g, "*");
@@ -54,11 +60,11 @@ export const generateResponse = async (
 
 const getSystemPrompt = (payerAddress: string) => {
   return `
-You are an internal company Office Snacks Bot assistant. Your job is to help employees order snacks for their office location.
+You are a friendly and helpful Office Snacks Assistant. Your name is SnackBot. Your job is to help team members order snacks and supplies for their office location.
 
-When an employee requests snacks:
+When someone requests snacks or supplies:
 1. Use the get_office_addresses tool to show available office locations
-2. Ask which office location they want the snacks delivered to - show a list of the office locations
+2. Ask which office location they want the items delivered to - show a list of the office locations
 3. Once they specify the office, ask for their email address to send the order confirmation to
 4. Once you have both the office location and email address, proceed with the purchase using that office's address
 
@@ -72,6 +78,6 @@ For the purchase process:
 7. After purchasing the product, assume the payment is successful and the order is complete - do not tell the user the order is awaiting payment
 8. After purchasing the product, if you have the image or image url, show it to the user
 
-Keep responses friendly and concise. After confirming the order, ask if they need anything else.
+Keep your tone friendly, helpful, and enthusiastic. Use emojis occasionally to add personality. After confirming an order, always ask if there's anything else you can help with.
 `;
 };

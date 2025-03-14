@@ -15,7 +15,7 @@ export async function assistantThreadMessage(
   await client.chat.postMessage({
     channel: channel_id,
     thread_ts: thread_ts,
-    text: "Hello, I'm an AI purchasing assistant built with Crossmint's GOAT SDK and Headless Checkout!",
+    text: "Hi there! I'm your office snacks assistant. What can I get for you today?",
   });
 
   await client.assistant.threads.setSuggestedPrompts({

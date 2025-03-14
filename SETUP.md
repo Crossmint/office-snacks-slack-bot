@@ -46,7 +46,89 @@ pnpm install
 
 - Install the app to your workspace and note down the "Bot User OAuth Token"
 
-### 4. Set Environment Variables
+### 4. Generate a Solana Keypair
+
+1. Install the Solana CLI tools if you haven't already:
+
+https://docs.anza.xyz/cli/install
+
+2. Generate a new keypair using solana-keygen:
+
+```bash
+solana-keygen new --outfile ~/my-solana-wallet.json
+```
+
+3. You can leave the BIP39 passphrase empty by pressing Enter.
+
+4. The command will output your public key and save your keypair to the specified file.
+
+5. To get your private key in base58 format (for the .env file), run:
+
+```bash
+cat ~/my-solana-wallet.json | grep -o '\[.*\]' | tr -d '[],' | base58
+```
+
+6. Copy the generated private key and save it in a secure location.
+
+### 5. Fund the Solana Wallet
+
+1. Get your wallet's public key:
+
+```bash
+solana address -k ~/my-solana-wallet.json
+```
+
+2. Fund the wallet with SOL:
+
+   - You'll need a small amount of SOL (around 0.1 SOL) to cover gas fees
+   - You can get SOL from an exchange or use a faucet on devnet for testing
+   - Alternatively, you can use the [Crossmint Fund Wallet API](https://docs.crossmint.com/api-reference/wallets/fund-wallet#fund-wallet) to fund your wallet with SOL
+   - Transfer the SOL to your wallet's public key
+
+3. Fund the wallet with USDC:
+
+   - You'll need USDC for making purchases
+   - You can transfer USDC directly to your wallet's public key
+   - Or use the [Crossmint Fund Wallet API](https://docs.crossmint.com/api-reference/wallets/fund-wallet#fund-wallet) to fund your wallet with USDC
+   - Make sure to use the correct USDC token address for your network (mainnet/devnet)
+
+4. Verify your balances:
+
+```bash
+# Check SOL balance
+solana balance <your-wallet-public-key>
+
+# Check USDC balance (requires a token account)
+spl-token accounts --owner <your-wallet-public-key>
+```
+
+### 6. Get a Crossmint Server-Side API Key
+
+1. Create a Crossmint account if you don't have one already:
+
+   - [Staging Console](https://staging.crossmint.com/console) (for development)
+   - [Production Console](https://www.crossmint.com/console) (for production)
+
+   > **Important**: When using Crossmint's staging environment, you should also use Solana's devnet for testing. Similarly, when using Crossmint's production environment, you should use Solana's mainnet. This ensures compatibility between the environments.
+
+   > **Note**: While purchases will work in both staging and production environments, physical products ordered through the staging environment will not be delivered. Use staging for testing the payment flow and production for actual product orders.
+
+2. Navigate to the API Keys section in the developer console:
+
+   - [Staging API Keys](https://staging.crossmint.com/console/projects/apiKeys)
+   - [Production API Keys](https://www.crossmint.com/console/projects/apiKeys)
+
+3. Click the "Create new key" button in the server-side keys section.
+
+4. In the modal that opens, expand the "Payments APIs" section and enable the following scope:
+
+   - `orders.create` - Required for creating payment orders
+
+5. Click the "Create server key" button at the bottom of the modal.
+
+6. Copy your new API key and store it securely. You'll need to add it to your environment variables.
+
+### 7. Set Environment Variables
 
 Create a `.env` file in the root of your project with the following:
 
@@ -65,18 +147,18 @@ SOLANA_RPC_URL=your-solana-rpc-url
 # Crossmint API Key
 CROSSMINT_API_KEY=your-crossmint-api-key
 
-# Office Addresses (JSON string array of objects)
+# Office Addresses (JSON string array of objects, with these exact properties)
 OFFICE_ADDRESSES='[{"name":"Main Office","line1":"123 Market St","line2":"Suite 100","city":"San Francisco","state":"CA","postalCode":"94105","country":"US"}]'
 ```
 
 Replace the placeholder values with your actual tokens.
 
-### 5. Deploy your app
+### 8. Deploy your app
 
 - If building locally, follow steps in the Local Development section to tunnel your local environment and then copy the tunnel URL.
 - If deploying to Vercel, follow the instructions in the Production Deployment section and copy your deployment URL.
 
-### 6. Update your Slack App configuration:
+### 9. Update your Slack App configuration:
 
 Go to your [Slack App settings](https://api.slack.com/apps)
 
@@ -159,7 +241,7 @@ The bot maintains context within both threads and direct messages, so it can fol
 
    - Example: "I need to order snacks for the office"
 
-2. **Amazon Purchasing**: The bot can process purchases from Amazon URLs.
+2. **Item Purchasing**: The bot can process purchases from Amazon URLs.
 
    - Example: "Buy this https://www.amazon.com/Croix-Sparkling-Water-Grapefruit-Count/dp/B01MTDGVVY/"
 
@@ -168,11 +250,4 @@ The bot maintains context within both threads and direct messages, so it can fol
 
 ### Extending with New Tools
 
-The chatbot is built with an extensible architecture using the [AI SDK's tool system](https://sdk.vercel.ai/docs/ai-sdk-core/tools-and-tool-calling) and the [GOAT SDK](https://github.com/goat-sdk/goat/). You can easily add new tools such as:
-
-- Knowledge base search
-- Database queries
-- Custom API integrations
-- Company documentation search
-
-Create a new plugin in the `lib/goat` directory following the existing pattern.
+The chatbot is built with an extensible architecture using the [AI SDK's tool system](https://sdk.vercel.ai/docs/ai-sdk-core/tools-and-tool-calling) and the [GOAT SDK](https://github.com/goat-sdk/goat/).
