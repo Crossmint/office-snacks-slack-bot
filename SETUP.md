@@ -70,12 +70,48 @@ cat ~/my-solana-wallet.json | grep -o '\[.*\]' | tr -d '[],' | base58
 
 6. Copy the generated private key and save it in a secure location.
 
-### 5. Get a Crossmint Server-Side API Key
+### 5. Fund the Solana Wallet
+
+1. Get your wallet's public key:
+
+```bash
+solana address -k ~/my-solana-wallet.json
+```
+
+2. Fund the wallet with SOL:
+
+   - You'll need a small amount of SOL (around 0.1 SOL) to cover gas fees
+   - You can get SOL from an exchange or use a faucet on devnet for testing
+   - Alternatively, you can use the [Crossmint Fund Wallet API](https://docs.crossmint.com/api-reference/wallets/fund-wallet#fund-wallet) to fund your wallet with SOL
+   - Transfer the SOL to your wallet's public key
+
+3. Fund the wallet with USDC:
+
+   - You'll need USDC for making purchases
+   - You can transfer USDC directly to your wallet's public key
+   - Or use the [Crossmint Fund Wallet API](https://docs.crossmint.com/api-reference/wallets/fund-wallet#fund-wallet) to fund your wallet with USDC
+   - Make sure to use the correct USDC token address for your network (mainnet/devnet)
+
+4. Verify your balances:
+
+```bash
+# Check SOL balance
+solana balance <your-wallet-public-key>
+
+# Check USDC balance (requires a token account)
+spl-token accounts --owner <your-wallet-public-key>
+```
+
+### 6. Get a Crossmint Server-Side API Key
 
 1. Create a Crossmint account if you don't have one already:
 
    - [Staging Console](https://staging.crossmint.com/console) (for development)
    - [Production Console](https://www.crossmint.com/console) (for production)
+
+   > **Important**: When using Crossmint's staging environment, you should also use Solana's devnet for testing. Similarly, when using Crossmint's production environment, you should use Solana's mainnet. This ensures compatibility between the environments.
+
+   > **Note**: While purchases will work in both staging and production environments, physical products ordered through the staging environment will not be delivered. Use staging for testing the payment flow and production for actual product orders.
 
 2. Navigate to the API Keys section in the developer console:
 
@@ -92,7 +128,7 @@ cat ~/my-solana-wallet.json | grep -o '\[.*\]' | tr -d '[],' | base58
 
 6. Copy your new API key and store it securely. You'll need to add it to your environment variables.
 
-### 6. Set Environment Variables
+### 7. Set Environment Variables
 
 Create a `.env` file in the root of your project with the following:
 
@@ -117,12 +153,12 @@ OFFICE_ADDRESSES='[{"name":"Main Office","line1":"123 Market St","line2":"Suite 
 
 Replace the placeholder values with your actual tokens.
 
-### 7. Deploy your app
+### 8. Deploy your app
 
 - If building locally, follow steps in the Local Development section to tunnel your local environment and then copy the tunnel URL.
 - If deploying to Vercel, follow the instructions in the Production Deployment section and copy your deployment URL.
 
-### 8. Update your Slack App configuration:
+### 9. Update your Slack App configuration:
 
 Go to your [Slack App settings](https://api.slack.com/apps)
 
