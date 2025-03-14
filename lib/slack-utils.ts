@@ -1,5 +1,5 @@
 import { WebClient } from '@slack/web-api';
-import { CoreMessage } from 'ai'
+import type { CoreMessage } from 'ai'
 import crypto from 'crypto'
 
 const signingSecret = process.env.SLACK_SIGNING_SECRET!
@@ -14,10 +14,8 @@ export async function isValidSlackRequest({
   request: Request
   rawBody: string
 }) {
-  // console.log('Validating Slack request')
   const timestamp = request.headers.get('X-Slack-Request-Timestamp')
   const slackSignature = request.headers.get('X-Slack-Signature')
-  // console.log(timestamp, slackSignature)
 
   if (!timestamp || !slackSignature) {
     console.log('Missing timestamp or signature')
