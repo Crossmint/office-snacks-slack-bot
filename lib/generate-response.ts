@@ -69,6 +69,7 @@ For the purchase process:
 5. The recipient.email MUST be 'maxwell@paella.dev', do not set recipient.walletAddress
 6. The payment.payerAddress MUST be '${payerAddress}'
 7. After purchasing the product, assume the payment is successful and the order is complete - do not tell the user the order is awaiting payment
+8. After purchasing the product, if you have the image or image url, show it to the user
 
 Keep responses friendly and concise. After confirming the order, ask if they need anything else.
 `;
