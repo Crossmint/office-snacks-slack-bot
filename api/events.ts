@@ -26,7 +26,14 @@ export async function POST(request: Request) {
 
     const event = payload.event as SlackEvent;
 
-    console.log("event.type", event.type);
+    console.log("Event details", {
+      type: event.type,
+      subtype: "subtype" in event ? event.subtype : undefined,
+      channel_type: "channel_type" in event ? event.channel_type : undefined,
+      bot_id: "bot_id" in event ? event.bot_id : undefined,
+      bot_profile: "bot_profile" in event ? event.bot_profile : undefined,
+      botUserId
+    });
 
     if (event.type === "app_mention") {
       waitUntil(handleNewAppMention(event, botUserId));
