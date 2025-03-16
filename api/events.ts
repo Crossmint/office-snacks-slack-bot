@@ -32,7 +32,8 @@ export async function POST(request: Request) {
       channel_type: "channel_type" in event ? event.channel_type : undefined,
       bot_id: "bot_id" in event ? event.bot_id : undefined,
       bot_profile: "bot_profile" in event ? event.bot_profile : undefined,
-      botUserId
+      botUserId,
+      text: "text" in event ? event.text : undefined,
     });
 
     if (event.type === "app_mention") {
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     if (
       event.type === "message" &&
       !event.subtype &&
-      event.channel_type === "im" &&
+      ["im", "channel"].includes(event.channel_type) &&
       !event.bot_id &&
       !event.bot_profile &&
       event.bot_id !== botUserId

@@ -6,7 +6,8 @@ import { Connection, Keypair } from "@solana/web3.js";
 import bs58 from "bs58";
 import { crossmintHeadlessCheckout } from "@goat-sdk/plugin-crossmint-headless-checkout";
 import { splToken } from "@goat-sdk/plugin-spl-token";
-import { officeAddressesTool } from "./tools/office-addresses-tool";
+import { officeAddressesTool } from "./tools/office-addresses.tool";
+import { recommendedSnacksTool } from "./tools/recommended-snacks.tool";
 
 export const generateResponse = async (
   messages: CoreMessage[],
@@ -35,6 +36,7 @@ export const generateResponse = async (
   const tools = {
     ...onChainTools,
     get_office_addresses: officeAddressesTool,
+    get_recommended_snacks: recommendedSnacksTool,
   };
   // list all the available tool names
   console.log("🛠️ Available tools:", Object.keys(tools));
