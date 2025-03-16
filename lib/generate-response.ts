@@ -27,7 +27,7 @@ export const generateResponse = async (
         apiKey: process.env.CROSSMINT_API_KEY as string,
       }),
       splToken({
-        network: "devnet",
+        network: "mainnet",
       }),
     ],
   });
